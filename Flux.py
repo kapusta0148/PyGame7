@@ -1,7 +1,6 @@
 import pygame
 import os
 
-# Базовый класс для спрайтов
 class Sprite:
     def __init__(self, x, y, image):
         self.x = x
@@ -13,16 +12,14 @@ class Sprite:
         map_width = camera.map_width
         map_height = camera.map_height
 
-        # Основная позиция спрайта
         screen_x = self.x * tile_size - camera.x
         screen_y = self.y * tile_size - camera.y
 
-        # Рисуем спрайт с учетом повторения карты
         offsets = [
-            (0, 0),  # Основная позиция
-            (-map_width, 0), (map_width, 0),  # Слева и справа
-            (0, -map_height), (0, map_height),  # Сверху и снизу
-            (-map_width, -map_height), (-map_width, map_height),  # Углы
+            (0, 0),
+            (-map_width, 0), (map_width, 0),
+            (0, -map_height), (0, map_height),
+            (-map_width, -map_height), (-map_width, map_height),
             (map_width, -map_height), (map_width, map_height)
         ]
 
@@ -33,7 +30,7 @@ class Sprite:
                 -tile_size <= final_y < camera.screen_height):
                 screen.blit(self.image, (final_x, final_y))
 
-# Класс игрока
+
 class Player(Sprite):
     def move(self, direction, level_map, width, height, is_cyclic):
         dx, dy = 0, 0
@@ -59,19 +56,19 @@ class Player(Sprite):
                 level_map[new_y][new_x] not in ['#', '$']):
                 self.x, self.y = new_x, new_y
 
-# Класс внутренней стены (#)
+
 class Wall(Sprite):
     pass
 
-# Класс внешней стены ($)
+
 class EdgeWall(Sprite):
     pass
 
-# Класс пустой клетки
+
 class Empty(Sprite):
     pass
 
-# Класс камеры
+
 class Camera:
     def __init__(self, screen_width, screen_height, map_width, map_height):
         self.screen_width = screen_width
@@ -100,7 +97,6 @@ class Game:
         pygame.display.set_caption("Моя игра")
         self.clock = pygame.time.Clock()
 
-        # Загрузка изображений с масштабированием
         self.player_image = pygame.transform.scale(pygame.image.load("assets/player.png").convert_alpha(), (50, 50))
         self.wall_image = pygame.transform.scale(pygame.image.load("assets/box.png").convert_alpha(), (50, 50))
         self.empty_image = pygame.transform.scale(pygame.image.load("assets/grass.png").convert_alpha(), (50, 50))
@@ -113,15 +109,12 @@ class Game:
             exit()
         self.level_map = self.load_level(filename)
 
-        # Запрос на цикличность уровня
         cyclic_choice = input("Вы хотите цикличный уровень? (да/нет): ").lower()
         self.is_cyclic = cyclic_choice == "да"
 
-        # Если уровень цикличный, заменяем все $ на .
         if self.is_cyclic:
             self.level_map = [row.replace('$', '.') for row in self.level_map]
 
-        # Создание списков спрайтов
         self.background_sprites = []
         self.active_sprites = []
         for y, row in enumerate(self.level_map):
@@ -190,7 +183,6 @@ class Game:
 
         pygame.quit()
 
-# Запуск игры
 if __name__ == "__main__":
     game = Game()
     game.run()
