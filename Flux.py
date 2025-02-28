@@ -1,6 +1,7 @@
 import pygame
 import os
 
+
 class Sprite:
     def __init__(self, x, y, image):
         self.x = x
@@ -73,7 +74,7 @@ class Camera:
     def __init__(self, screen_width, screen_height, map_width, map_height):
         self.screen_width = screen_width
         self.screen_height = screen_height
-        self.map_width = map_width * 50  # Размер карты в пикселях
+        self.map_width = map_width * 50
         self.map_height = map_height * 50
         self.x = 0
         self.y = 0
@@ -89,7 +90,7 @@ class Camera:
             self.x = max(0, min(target_x, self.map_width - self.screen_width))
             self.y = max(0, min(target_y, self.map_height - self.screen_height))
 
-# Класс игры
+
 class Game:
     def __init__(self):
         pygame.init()
@@ -100,8 +101,6 @@ class Game:
         self.player_image = pygame.transform.scale(pygame.image.load("assets/player.png").convert_alpha(), (50, 50))
         self.wall_image = pygame.transform.scale(pygame.image.load("assets/box.png").convert_alpha(), (50, 50))
         self.empty_image = pygame.transform.scale(pygame.image.load("assets/grass.png").convert_alpha(), (50, 50))
-
-        self.show_splash_screen()
 
         filename = input("Введите имя файла с уровнем: ")
         if not os.path.exists("data/" + filename):
@@ -115,8 +114,18 @@ class Game:
         if self.is_cyclic:
             self.level_map = [row.replace('$', '.') for row in self.level_map]
 
+        self.show_splash_screen()
+
         self.background_sprites = []
         self.active_sprites = []
+        self.floor_sprites = []
+
+        self.width, self.height = len(self.level_map[0]), len(self.level_map)
+
+        for y in range(self.height):
+            for x in range(self.width):
+                self.floor_sprites.append(Empty(x, y, self.empty_image))
+
         for y, row in enumerate(self.level_map):
             for x, char in enumerate(row):
                 if char == '@':
@@ -129,7 +138,6 @@ class Game:
                 elif char == '$' and not self.is_cyclic:
                     self.background_sprites.append(EdgeWall(x, y, self.wall_image))
 
-        self.width, self.height = len(self.level_map[0]), len(self.level_map)
         self.camera = Camera(800, 600, self.width, self.height)
 
     def load_level(self, filename):
@@ -173,8 +181,12 @@ class Game:
             self.camera.update(self.player.x, self.player.y, 50, self.is_cyclic)
             self.screen.fill((0, 0, 0))
 
+            for sprite in self.floor_sprites:
+                sprite.draw(self.screen, self.camera)
+
             for sprite in self.background_sprites:
                 sprite.draw(self.screen, self.camera)
+
             for sprite in self.active_sprites:
                 sprite.draw(self.screen, self.camera)
 
